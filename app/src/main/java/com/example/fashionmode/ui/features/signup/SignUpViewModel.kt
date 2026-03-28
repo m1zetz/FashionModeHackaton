@@ -43,6 +43,9 @@ class SignUpViewModel (
             }
             SignUpIntent.Registration -> {
                 viewModelScope.launch {
+                    _state.update { state ->
+                        state.copy(isLoading = true)
+                    }
                     authRepository.registration(_state.value.name,_state.value.email, _state.value.password)
                         .onSuccess {
                             _channel.send(SignUpEffect.NavigateToMain)
@@ -52,7 +55,11 @@ class SignUpViewModel (
                                     error = "Ошибка регистрации"
                                 )
                             }
+
                         }
+                    _state.update { state ->
+                        state.copy(isLoading = false)
+                    }
                 }
 
             }

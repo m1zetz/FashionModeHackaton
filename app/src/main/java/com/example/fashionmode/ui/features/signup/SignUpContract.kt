@@ -1,5 +1,7 @@
 package com.example.fashionmode.ui.features.signup
 
+import com.example.fashionmode.common.enums.UserType
+
 data class SignUpState(
     val name: String = "",
     val email: String = "",

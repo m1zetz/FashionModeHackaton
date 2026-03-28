@@ -7,6 +7,7 @@ import com.example.fashionmode.ui.features.signup.SignUpEffect
 import com.example.fashionmode.ui.features.signup.SignUpIntent
 import com.example.fashionmode.ui.features.signup.SignUpState
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -37,16 +38,29 @@ class SignInViewModel(private val authRepository: AuthRepository) : ViewModel() 
 
             SignInIntent.Login -> {
                 viewModelScope.launch {
+                    _state.update { state ->
+                        state.copy(isLoading = true)
+                    }
                     authRepository.login(_state.value.email, _state.value.password)
-                        .onSuccess {
-                            _channel.send(SignInEffect.NavigateToMain)
-                        }.onFailure {
+                        .onSuccess {type ->
+                            _channel.send(SignInEffect.NavigateToMain(type))
+                        }.onFailure {error ->
                             _state.update {state ->
                                 state.copy(
-                                    error = "Ошибка авторизации"
+                                    error = error.message ?: ""
                                 )
                             }
                         }
+                    _state.update { state ->
+                        state.copy(isLoading = false)
+                    }
+                }
+
+            }
+
+            SignInIntent.NavigateToRegistration -> {
+                viewModelScope.launch {
+                    _channel.send(SignInEffect.NavigateToRegistration)
                 }
 
             }
